@@ -4,9 +4,9 @@ A collection of AI-assisted projects and experiments.
 
 ## Projects
 
-### Task Management API
+### Hunting & Fishing Database API
 
-A simple REST API for managing tasks with CRUD operations.
+A REST API for tracking hunting and fishing catches with detailed information about what you caught/shot, when, where, and with what equipment.
 
 **Tech Stack:**
 - FastAPI (Python web framework)
@@ -31,36 +31,82 @@ A simple REST API for managing tasks with CRUD operations.
    - Interactive docs: `http://localhost:8000/docs`
    - Alternative docs: `http://localhost:8000/redoc`
 
+**Database Schema:**
+
+Each catch record includes:
+- `species` - What you caught/shot (e.g., "Trout", "Deer", "Bass")
+- `catch_type` - Type of activity: "hunting" or "fishing"
+- `weight` - Weight in pounds/kg (optional)
+- `location` - Where you caught it
+- `date_caught` - Date and time of the catch
+- `equipment` - What you used (e.g., "12-gauge shotgun", "Fly rod with size 12 fly")
+- `notes` - Additional details about the catch
+- `created_at` - When the record was created
+
 **API Endpoints:**
 
-- `POST /tasks` - Create a new task
-- `GET /tasks` - Get all tasks
-- `GET /tasks/{task_id}` - Get a specific task
-- `PUT /tasks/{task_id}` - Update a task
-- `DELETE /tasks/{task_id}` - Delete a task
+- `POST /catches` - Log a new catch
+- `GET /catches` - Get all catches (with optional `?catch_type=hunting` or `?catch_type=fishing` filter)
+- `GET /catches/{catch_id}` - Get a specific catch record
+- `PUT /catches/{catch_id}` - Update a catch record
+- `DELETE /catches/{catch_id}` - Delete a catch record
+- `GET /stats` - Get summary statistics (total catches, hunting vs fishing breakdown)
 
 **Example Usage:**
 
-Create a task:
+Log a fishing catch:
 ```bash
-curl -X POST "http://localhost:8000/tasks" \
+curl -X POST "http://localhost:8000/catches" \
   -H "Content-Type: application/json" \
-  -d '{"title": "Learn FastAPI", "description": "Build a REST API with FastAPI"}'
+  -d '{
+    "species": "Rainbow Trout",
+    "catch_type": "fishing",
+    "weight": 2.5,
+    "location": "Mountain River",
+    "date_caught": "2026-02-21T14:30:00",
+    "equipment": "Fly rod with size 12 nymph",
+    "notes": "Caught in the morning run, released for conservation"
+  }'
 ```
 
-Get all tasks:
+Log a hunting catch:
 ```bash
-curl "http://localhost:8000/tasks"
-```
-
-Update a task:
-```bash
-curl -X PUT "http://localhost:8000/tasks/1" \
+curl -X POST "http://localhost:8000/catches" \
   -H "Content-Type: application/json" \
-  -d '{"completed": true}'
+  -d '{
+    "species": "White-tailed Deer",
+    "catch_type": "hunting",
+    "weight": 185,
+    "location": "North Ridge Forest",
+    "date_caught": "2026-02-20T06:45:00",
+    "equipment": "30-06 rifle with Leupold scope",
+    "notes": "Buck with 8-point rack"
+  }'
 ```
 
-Delete a task:
+Get all catches:
 ```bash
-curl -X DELETE "http://localhost:8000/tasks/1"
+curl "http://localhost:8000/catches"
+```
+
+Get only fishing catches:
+```bash
+curl "http://localhost:8000/catches?catch_type=fishing"
+```
+
+Get statistics:
+```bash
+curl "http://localhost:8000/stats"
+```
+
+Update a catch:
+```bash
+curl -X PUT "http://localhost:8000/catches/1" \
+  -H "Content-Type: application/json" \
+  -d '{"notes": "Updated notes about this catch"}'
+```
+
+Delete a catch:
+```bash
+curl -X DELETE "http://localhost:8000/catches/1"
 ```
