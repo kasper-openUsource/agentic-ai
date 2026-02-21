@@ -110,3 +110,30 @@ Delete a catch:
 ```bash
 curl -X DELETE "http://localhost:8000/catches/1"
 ```
+
+## Frontend
+
+A React + Vite frontend is available in the `frontend/` directory.
+
+**Getting Started:**
+
+1. **Install frontend dependencies:**
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+2. **Start the frontend dev server:**
+   ```bash
+   npm run dev
+   ```
+
+3. **Access the frontend:**
+   - Frontend runs on: `http://localhost:5173`
+   - Make sure the FastAPI backend is also running on `http://localhost:8000`
+
+**Tech Stack:**
+- React 18
+- Vite
+- Tailwind CSS
+- Axios
