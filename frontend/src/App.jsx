@@ -1,48 +1,66 @@
-import { useEffect, useState } from 'react'
-import { getCatches, getStats } from './api/catches.js'
-import CatchForm from './components/CatchForm.jsx'
-import CatchList from './components/CatchList.jsx'
-import FilterBar from './components/FilterBar.jsx'
-import StatsCard from './components/StatsCard.jsx'
+import { useEffect, useState, useRef } from "react";
+import { getCatches, getStats } from "./api/catches.js";
+import CatchForm from "./components/CatchForm.jsx";
+import CatchList from "./components/CatchList.jsx";
+import FilterBar from "./components/FilterBar.jsx";
+import StatsCard from "./components/StatsCard.jsx";
 
 export default function App() {
-  const [catches, setCatches] = useState([])
-  const [stats, setStats] = useState(null)
-  const [filter, setFilter] = useState('all')
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [catches, setCatches] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [filter, setFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [editingCatch, setEditingCatch] = useState(null);
+
+  const formRef = useRef(null);
 
   async function fetchData(currentFilter) {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
     try {
       const [catchData, statsData] = await Promise.all([
-        getCatches(currentFilter === 'all' ? null : currentFilter),
+        getCatches(currentFilter === "all" ? null : currentFilter),
         getStats(),
-      ])
-      setCatches(catchData)
-      setStats(statsData)
+      ]);
+      setCatches(catchData);
+      setStats(statsData);
     } catch (err) {
-      setError('Failed to load data. Is the backend running on http://localhost:8000?')
+      setError(
+        "Failed to load data. Is the backend running on http://localhost:8000?",
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   useEffect(() => {
-    fetchData(filter)
-  }, [filter])
+    fetchData(filter);
+  }, [filter]);
 
   function handleFilterChange(value) {
-    setFilter(value)
+    setFilter(value);
   }
 
   function handleCatchCreated() {
-    fetchData(filter)
+    setEditingCatch(null);
+    fetchData(filter);
   }
 
   function handleCatchDeleted() {
-    fetchData(filter)
+    setEditingCatch(null);
+    fetchData(filter);
+  }
+
+  function handleEditCatch(catchRecord) {
+    setEditingCatch(catchRecord);
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  function handleCancelEdit() {
+    setEditingCatch(null);
   }
 
   return (
@@ -57,12 +75,19 @@ export default function App() {
       )}
       <StatsCard stats={stats} />
       <FilterBar filter={filter} onFilterChange={handleFilterChange} />
-      <CatchForm onCatchCreated={handleCatchCreated} />
+      <div ref={formRef}>
+        <CatchForm
+          onCatchCreated={handleCatchCreated}
+          editingCatch={editingCatch}
+          onCancelEdit={handleCancelEdit}
+        />
+      </div>
       <CatchList
         catches={catches}
         loading={loading}
         onCatchDeleted={handleCatchDeleted}
+        onEditCatch={handleEditCatch}
       />
     </div>
-  )
+  );
 }
